@@ -19,7 +19,7 @@ namespace Klak.Audio
         [SerializeField]
         bool _autoGainControl = true;
 
-        [SerializeField, Range(0, 40)]
+        [SerializeField, Range(-10, 40)]
         float _internalGain = 6;
 
         [SerializeField, Range(1, 40)]
