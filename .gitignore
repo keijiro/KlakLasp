@@ -1,0 +1,9 @@
+*.swp
+
+.DS_Store
+Desktop.ini
+
+/Library/
+/Temp/
+
+KlakLasp.unitypackage
