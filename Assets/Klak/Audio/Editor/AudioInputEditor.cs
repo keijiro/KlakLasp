@@ -16,7 +16,8 @@ namespace Klak.Audio
         SerializedProperty _fallDownSpeed;
         SerializedProperty _outputEvent;
 
-        static GUIContent _labelDynamicRange = new GUIContent("Dyn. Range (dB)");
+        static GUIContent _labelDynamicRange = new GUIContent("Dynamic Range");
+        static GUIContent _labelDynamicRangeWide = new GUIContent("Dynamic Range (dB)");
         static GUIContent _labelGain = new GUIContent("Gain (dB)");
         static GUIContent _labelSpeed = new GUIContent("Speed");
 
@@ -34,11 +35,13 @@ namespace Klak.Audio
 
         public override void OnInspectorGUI()
         {
+            var wide = EditorGUIUtility.labelWidth > 132;
+
             serializedObject.Update();
 
             EditorGUILayout.PropertyField(_amplitudeType);
             EditorGUILayout.PropertyField(_filterType);
-            EditorGUILayout.PropertyField(_dynamicRange, _labelDynamicRange);
+            EditorGUILayout.PropertyField(_dynamicRange, wide ? _labelDynamicRangeWide : _labelDynamicRange);
             EditorGUILayout.PropertyField(_autoGainControl);
 
             if (_autoGainControl.hasMultipleDifferentValues || !_autoGainControl.boolValue)
