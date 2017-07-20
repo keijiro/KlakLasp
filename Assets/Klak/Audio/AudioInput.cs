@@ -6,7 +6,7 @@ namespace Klak.Audio
     [AddComponentMenu("Klak/Wiring/Input/Audio Input")]
     public class AudioInput : NodeBase
     {
-        #region Editable properties
+        #region Editable attributes
 
         public enum AmplitudeType { Peak, RMS }
 
@@ -43,6 +43,42 @@ namespace Klak.Audio
 
         #endregion
 
+        #region Public properties
+
+        public AmplitudeType amplitudeType {
+            get { return _amplitudeType; }
+            set { _amplitudeType = value; }
+        }
+
+        public float dynamicRange {
+            set { _dynamicRange = value; }
+            get { return _dynamicRange; }
+        }
+
+        public float calculatedGain {
+            get {
+                if (_autoGainControl)
+                    return -_peak;
+                else
+                    return _internalGain + _externalGain;
+            }
+        }
+
+        public float inputAmplitude {
+            get {
+                if (_amplitudeType == AmplitudeType.Peak)
+                    return Lasp.AudioInput.GetPeakLevelDecibel(_filterType);
+                else
+                    return Lasp.AudioInput.CalculateRMSDecibel(_filterType);
+            }
+        }
+
+        public float outputAmplitude {
+            get { return _amplitude; }
+        }
+
+        #endregion
+
         #region Private members
 
         // Silence: Minimum amplitude value
@@ -64,42 +100,23 @@ namespace Klak.Audio
 
         void Update()
         {
+            var input = inputAmplitude;
             var dt = Time.deltaTime;
 
-            // Get the input value.
-            float input;
-
-            if (_amplitudeType == AmplitudeType.Peak)
-                input = Lasp.AudioInput.GetPeakLevelDecibel(_filterType);
-            else
-                input = Lasp.AudioInput.CalculateRMSDecibel(_filterType);
-
-            // Calculate the gain value.
-            float gain;
-
+            // Automatic gain control
             if (_autoGainControl)
             {
-                // Automatic gain control
-
                 // Gradually falls down to the minimum amplitude.
-                const float peakFallSpeed = 1.0f;
+                const float peakFallSpeed = 0.6f;
                 _peak = Mathf.Max(_peak - peakFallSpeed * dt, kSilence);
 
                 // Pull up by input with a small headroom.
                 var headroom = _dynamicRange * 0.2f;
                 _peak = Mathf.Max(_peak, input - headroom);
-
-                // Simply apply the peak level as gain.
-                gain = -_peak;
-            }
-            else
-            {
-                // Simply apply the sum of internal/external gains.
-                gain = _internalGain + _externalGain;
             }
 
             // Normalize the input value.
-            input = Mathf.Clamp01((input + gain) / _dynamicRange + 1);
+            input = Mathf.Clamp01((input + calculatedGain) / _dynamicRange + 1);
 
             if (_holdAndFallDown)
             {
