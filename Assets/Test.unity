@@ -324,9 +324,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _wiringNodePosition: {x: -48, y: -24}
-  _amplitudeType: 1
   _filterType: 1
-  _autoGainControl: 1
+  _autoGain: 1
   _internalGain: 6
   _dynamicRange: 12
   _holdAndFallDown: 1

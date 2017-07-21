@@ -8,16 +8,11 @@ namespace Klak.Audio
     {
         #region Editable attributes
 
-        public enum AmplitudeType { Peak, RMS }
-
-        [SerializeField]
-        AmplitudeType _amplitudeType = AmplitudeType.RMS;
-
         [SerializeField]
         Lasp.FilterType _filterType = Lasp.FilterType.LowPass;
 
         [SerializeField]
-        bool _autoGainControl = true;
+        bool _autoGain = true;
 
         [SerializeField, Range(-10, 40)]
         float _internalGain = 6;
@@ -36,7 +31,16 @@ namespace Klak.Audio
         #region Node I/O
 
         [Inlet]
-        public float gain { set { _externalGain = value; } }
+        public float gain {
+            get { return _externalGain; }
+            set { _externalGain = value; }
+        }
+
+        [Inlet]
+        public void ResetAutoGain()
+        {
+            _peak = kSilence;
+        }
 
         [SerializeField, Outlet]
         FloatEvent _outputEvent = new FloatEvent();
@@ -45,32 +49,37 @@ namespace Klak.Audio
 
         #region Public properties
 
-        public AmplitudeType amplitudeType {
-            get { return _amplitudeType; }
-            set { _amplitudeType = value; }
+        public Lasp.FilterType filterType {
+            get { return _filterType; }
+            set { _filterType = value; }
+        }
+
+        public bool autoGain {
+            get { return _autoGain; }
+            set { _autoGain = value; }
         }
 
         public float dynamicRange {
-            set { _dynamicRange = value; }
             get { return _dynamicRange; }
+            set { _dynamicRange = value; }
+        }
+
+        public bool holdAndFallDown {
+            get { return _holdAndFallDown; }
+            set { _holdAndFallDown = value; }
+        }
+
+        public float fallDownSpeed {
+            get { return _fallDownSpeed; }
+            set { _fallDownSpeed = value; }
         }
 
         public float calculatedGain {
-            get {
-                if (_autoGainControl)
-                    return -_peak;
-                else
-                    return _internalGain + _externalGain;
-            }
+            get { return _autoGain ? -_peak : _internalGain + _externalGain; }
         }
 
         public float inputAmplitude {
-            get {
-                if (_amplitudeType == AmplitudeType.Peak)
-                    return Lasp.AudioInput.GetPeakLevelDecibel(_filterType);
-                else
-                    return Lasp.AudioInput.CalculateRMSDecibel(_filterType);
-            }
+            get { return Lasp.AudioInput.CalculateRMSDecibel(_filterType); }
         }
 
         public float outputAmplitude {
@@ -104,15 +113,15 @@ namespace Klak.Audio
             var dt = Time.deltaTime;
 
             // Automatic gain control
-            if (_autoGainControl)
+            if (_autoGain)
             {
                 // Gradually falls down to the minimum amplitude.
                 const float peakFallSpeed = 0.6f;
                 _peak = Mathf.Max(_peak - peakFallSpeed * dt, kSilence);
 
-                // Pull up by input with a small headroom.
-                var headroom = _dynamicRange * 0.2f;
-                _peak = Mathf.Max(_peak, input - headroom);
+                // Pull up by input with allowing a small amount of clipping.
+                var clip = _dynamicRange * 0.2f;
+                _peak = Mathf.Clamp(input - clip, _peak, 0);
             }
 
             // Normalize the input value.

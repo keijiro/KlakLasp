@@ -7,15 +7,15 @@ namespace Klak.Audio
     [CustomEditor(typeof(AudioInput))]
     public class AudioInputEditor : Editor
     {
-        SerializedProperty _amplitudeType;
         SerializedProperty _filterType;
         SerializedProperty _dynamicRange;
-        SerializedProperty _autoGainControl;
+        SerializedProperty _autoGain;
         SerializedProperty _internalGain;
         SerializedProperty _holdAndFallDown;
         SerializedProperty _fallDownSpeed;
         SerializedProperty _outputEvent;
 
+        static GUIContent _labelAutoGain = new GUIContent("Auto Gain Control");
         static GUIContent _labelDynamicRange = new GUIContent("Dynamic Range");
         static GUIContent _labelDynamicRangeWide = new GUIContent("Dynamic Range (dB)");
         static GUIContent _labelGain = new GUIContent("Gain (dB)");
@@ -23,10 +23,9 @@ namespace Klak.Audio
 
         void OnEnable()
         {
-            _amplitudeType = serializedObject.FindProperty("_amplitudeType");
             _filterType = serializedObject.FindProperty("_filterType");
             _dynamicRange = serializedObject.FindProperty("_dynamicRange");
-            _autoGainControl = serializedObject.FindProperty("_autoGainControl");
+            _autoGain = serializedObject.FindProperty("_autoGain");
             _internalGain = serializedObject.FindProperty("_internalGain");
             _holdAndFallDown = serializedObject.FindProperty("_holdAndFallDown");
             _fallDownSpeed = serializedObject.FindProperty("_fallDownSpeed");
@@ -45,12 +44,11 @@ namespace Klak.Audio
 
             serializedObject.Update();
 
-            EditorGUILayout.PropertyField(_amplitudeType);
             EditorGUILayout.PropertyField(_filterType);
             EditorGUILayout.PropertyField(_dynamicRange, wide ? _labelDynamicRangeWide : _labelDynamicRange);
-            EditorGUILayout.PropertyField(_autoGainControl);
+            EditorGUILayout.PropertyField(_autoGain, _labelAutoGain);
 
-            if (_autoGainControl.hasMultipleDifferentValues || !_autoGainControl.boolValue)
+            if (_autoGain.hasMultipleDifferentValues || !_autoGain.boolValue)
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(_internalGain, _labelGain);
@@ -72,6 +70,13 @@ namespace Klak.Audio
                 DrawMeter((AudioInput)target);
             }
 
+            if (Application.isPlaying)
+            {
+                EditorGUILayout.Space();
+                if (GUILayout.Button("Reset Auto Gain"))
+                    foreach (AudioInput ai in targets) ai.ResetAutoGain();
+            }
+
             EditorGUILayout.Space();
 
             EditorGUILayout.PropertyField(_outputEvent);
@@ -84,31 +89,27 @@ namespace Klak.Audio
         {
             var rect = GUILayoutUtility.GetRect(128, 9);
 
-            const float kSilence = -60;            // -60dB = silence
-            const float kFullRange = 3 - kSilence; // Add +3db for RMS
-            var gray = new Color(0.8f, 0.8f, 0.8f, 1);
+            const float kMeterRange = 60;
+            var amp  = 1 + input.inputAmplitude / kMeterRange;
+            var peak = 1 - input.calculatedGain / kMeterRange;
+            var dr = input.dynamicRange / kMeterRange;
 
-            var amp  = 1 + (input.inputAmplitude - 3) / kFullRange;
-            var peak = 1 - (input.calculatedGain + 3) / kFullRange;
-            var dr = input.dynamicRange / kFullRange;
+            // Background
+            DrawRect(0, 0, 1, 1, rect, new Color(0.1f, 0.1f, 0.1f, 1));
 
-            // Background bar
-            var x0db = -kSilence / kFullRange;
-            DrawRect(0, 0, x0db, 1, rect, new Color(0, 0.15f, 0, 1)); // <0dB (green)
-            DrawRect(x0db, 0, 1, 1, rect, new Color(0.15f, 0, 0, 1)); // >0dB (red)
+            // Dynamic range indicator
+            DrawRect(peak - dr, 0, peak, 1, rect, new Color(0.3f, 0.3f, 0.3f, 1));
 
             // Amplitude bar
             var x1 = Mathf.Min(amp, peak - dr);
             var x2 = Mathf.Min(peak, amp);
-            DrawRect(0, 0, x1, 1, rect, new Color(0, 0.4f, 0, 1)); // under the range
-            DrawRect(x1, 0, x2, 1, rect, Color.green); // inside the range
+            DrawRect(0, 0, x1, 1, rect, new Color(0, 0.3f, 0, 1)); // under the range
+            DrawRect(x1, 0, x2, 1, rect, new Color(0, 0.7f, 0, 1)); // inside the range
             DrawRect(x2, 0, amp, 1, rect, Color.red);  // over the range
 
-            // Dynamic range indicator
-            DrawRect(peak - dr, 0.75f, peak, 1, rect, gray);
-
+            // Output level bar
             var x3 = peak + dr * (input.outputAmplitude - 1);
-            DrawRect(x3 - 3.0f / rect.width, 0, x3, 1, rect, gray);
+            DrawRect(x3 - 3 / rect.width, 0, x3, 1, rect, Color.green);
 
             // Label: -60dB
             Handles.Label(
@@ -118,7 +119,7 @@ namespace Klak.Audio
 
             // Label: 0dB
             Handles.Label(
-                new Vector2(rect.xMin + rect.width * x0db - 20, rect.yMax - 10),
+                new Vector2(rect.xMin + rect.width - 22, rect.yMax - 10),
                 "0dB", EditorStyles.miniLabel
             );
         }
