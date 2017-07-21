@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a319229719231eb42a0f578b8f339e1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wiringNodePosition: {x: -24, y: 24}
+  _wiringNodePosition: {x: -24, y: 48}
   _target: {fileID: 144958674}
   _propertyName: throttle
 --- !u!1 &144958673
@@ -10380,7 +10380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a319229719231eb42a0f578b8f339e1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wiringNodePosition: {x: -24, y: -36}
+  _wiringNodePosition: {x: -24, y: -24}
   _target: {fileID: 847340040}
   _propertyName: throttle
 --- !u!1 &1043163468
@@ -10423,10 +10423,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 097e1f4768de3d742bdcdf8e449a5b3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wiringNodePosition: {x: -218, y: -98}
-  _amplitudeType: 1
+  _wiringNodePosition: {x: -216, y: -96}
   _filterType: 1
-  _autoGainControl: 1
+  _autoGain: 1
   _internalGain: 6
   _dynamicRange: 6
   _holdAndFallDown: 0
@@ -10534,10 +10533,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 097e1f4768de3d742bdcdf8e449a5b3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wiringNodePosition: {x: -216, y: 24}
-  _amplitudeType: 1
+  _wiringNodePosition: {x: -216, y: 48}
   _filterType: 3
-  _autoGainControl: 1
+  _autoGain: 1
   _internalGain: 6
   _dynamicRange: 6
   _holdAndFallDown: 0
@@ -10598,10 +10596,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 097e1f4768de3d742bdcdf8e449a5b3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wiringNodePosition: {x: -216, y: -36}
-  _amplitudeType: 1
+  _wiringNodePosition: {x: -216, y: -24}
   _filterType: 2
-  _autoGainControl: 1
+  _autoGain: 1
   _internalGain: 6
   _dynamicRange: 6
   _holdAndFallDown: 0
