@@ -10,8 +10,8 @@ KlakLASP integrates the [LASP] plugin to analyze audio signals. Thanks to the
 low-latency nature of LASP, it doesn't introduce noticeable delays between
 audio input and actions.
 
-![GIF](http://i.imgur.com/yVQi4xG.gif)
-[Demo](http://radiumsoftware.tumblr.com/post/163175433415)
+![GIF](http://i.imgur.com/DUgqJ0H.gif)
+[Demo](http://radiumsoftware.tumblr.com/post/163292853756)
 
 System Requirements
 -------------------
