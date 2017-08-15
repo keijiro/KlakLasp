@@ -120,7 +120,7 @@ namespace Klak.Audio
                 _peak = Mathf.Max(_peak - peakFallSpeed * dt, kSilence);
 
                 // Pull up by input with allowing a small amount of clipping.
-                var clip = _dynamicRange * 0.2f;
+                var clip = _dynamicRange * 0.05f;
                 _peak = Mathf.Clamp(input - clip, _peak, 0);
             }
 

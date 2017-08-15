@@ -21,8 +21,8 @@ namespace Lasp
         // Returns the peak level during the last frame in dBFS.
         public static float GetPeakLevelDecibel(FilterType filter)
         {
-            // Full scale sin wave = 0 dBFS : refLevel = 1/sqrt(2)
-            return ConvertToDecibel(GetPeakLevel(filter), 0.70710678118f);
+            // Full scale square wave = 0 dBFS : refLevel = 1
+            return ConvertToDecibel(GetPeakLevel(filter), 1);
         }
 
         // Calculates the RMS level of the last frame.
@@ -35,8 +35,8 @@ namespace Lasp
         // Calculates the RMS level of the last frame in dBFS.
         public static float CalculateRMSDecibel(FilterType filter)
         {
-            // Full scale square wave = 0 dBFS : refLevel = 1
-            return ConvertToDecibel(CalculateRMS(filter), 1);
+            // Full scale sin wave = 0 dBFS : refLevel = 1/sqrt(2)
+            return ConvertToDecibel(CalculateRMS(filter), 0.7071f);
         }
 
         // Retrieve and copy the waveform.
