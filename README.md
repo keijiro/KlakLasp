@@ -110,6 +110,14 @@ range when "clicky" behavior is preferred.
 
 ![GIF](http://i.imgur.com/ljVUjxV.gif)
 
+### Use internal audio sources
+
+**[LASP Loopback]** can be used as a substitute of the LASP plugin. It analyzes
+audio output from Unity instead of external audio sources. This is useful to
+create audio reactive behaviors with internal audio sources.
+
+[LASP Loopback]: https://github.com/keijiro/Lasp/tree/loopback
+
 Current Limitations
 -------------------
 
